@@ -1,0 +1,509 @@
+#include <iostream>
+#include <Windows.h>
+
+using namespace std;
+
+void getLogicalDrives(){
+    int n;
+    char ch[4];
+    DWORD dw = GetLogicalDrives();
+    for (int i = 0; i < 26; i++){
+        n = (dw >> i) & 1;
+        if (n){
+            cout << "Drive: ";
+            ch[0] = char(65 + i);
+            ch[1] = ':';
+            ch[2] = '\\';
+            ch[3] = '\0';
+            cout << ch << '\n';
+        }
+    }
+}
+
+void getLogicalDriveStr(){
+    CHAR szDrives[MAX_PATH];
+    GetLogicalDriveStringsA(MAX_PATH, szDrives);
+    CHAR *ptr = szDrives;
+    while (*ptr){
+        cout << "Drive: ";
+        puts(ptr);
+        while (*++ptr)
+            ptr++;
+        ptr++;
+    }
+}
+
+void getDriveType(){
+    string s;
+    cout << "Enter the disk name: ";
+    cin >> s;
+    int nType = GetDriveTypeA(s.c_str());
+    cout << s << ' ';
+    switch (nType){
+        case DRIVE_UNKNOWN:
+            cout << "Drive Unknown.\n";
+            break;
+
+        case DRIVE_NO_ROOT_DIR:
+            cout << "The root path is invalid.\n";
+            break;
+
+        case DRIVE_REMOVABLE:
+            cout << "The drive has removable media.\n";
+            break;
+
+        case DRIVE_FIXED:
+            cout << "Fixed Drive.\n";
+            break;
+
+        case DRIVE_REMOTE:
+            cout << "The drive is a remote (network) drive.\n";
+            break;
+
+        case DRIVE_CDROM:
+            cout << "CD/DVD Drive.\n";
+            break;
+
+        case DRIVE_RAMDISK:
+            cout << "The drive is a RAM disk.\n";
+            break;
+    }
+}
+
+void getVolumeInfo(){
+    string s;
+    CHAR nameBuf[MAX_PATH];
+    CHAR fileSystemBuf[MAX_PATH];
+    DWORD serialNumber, maxLen, systemFlags;
+    bool GetVolumeInformationFlag;
+
+    cout << "Enter the disk name: ";
+    cin >> s;
+    GetVolumeInformationFlag = GetVolumeInformationA(s.c_str(), nameBuf, MAX_PATH, &serialNumber, &maxLen, &systemFlags, fileSystemBuf, MAX_PATH);
+
+
+    if (!GetVolumeInformationFlag){
+        cout << "Cannot retrieve volume information for ";
+        puts(s.c_str());
+    }
+    else{
+        cout << "Information about volume ";
+        puts(s.c_str());
+
+        cout << "\tVolume Label: ";
+        puts(nameBuf);
+
+        cout << "\tSerial Number: " << HIWORD(serialNumber) << "-" << LOWORD(serialNumber);
+
+        cout << "\n\tSystem Flags: \n";
+        if (systemFlags & FS_CASE_IS_PRESERVED)
+            cout << "\tFS_CASE_IS_PRESERVED\n";
+        if (systemFlags & FS_CASE_SENSITIVE)
+            cout << "\tFS_CASE_SENSITIVE\n";
+        if (systemFlags & FS_UNICODE_STORED_ON_DISK)
+            cout << "\tFS_UNICODE_STORED_ON_DISK \n";
+        if (systemFlags & FS_PERSISTENT_ACLS)
+            cout << "\tFS_PERSISTENT_ACLS \n";
+        if (systemFlags & FS_FILE_COMPRESSION)
+            cout << "\tFS_FILE_COMPRESSION\n";
+        if (systemFlags & FS_VOL_IS_COMPRESSED)
+            cout << "\tFS_VOL_IS_COMPRESSED\n";
+
+        cout << "\tFile System: ";
+        puts(fileSystemBuf);
+        cout << "\n";
+    }
+}
+
+void getDiskSize(){
+    string s;
+    cout << "Enter the disk name: ";
+    cin >> s;
+
+    DWORD sectorPerCluster, bytesPerSector, numOfFreeClusters, totalNumOfClusters;
+    BOOL bSuccess = GetDiskFreeSpaceA(s.c_str(), &sectorPerCluster, &bytesPerSector, &numOfFreeClusters, &totalNumOfClusters);
+    if (bSuccess){
+        long long freeB, totalB;
+        totalB = (long long)bytesPerSector*sectorPerCluster*totalNumOfClusters / (1024 * 1024);
+        freeB = (long long)bytesPerSector*sectorPerCluster*numOfFreeClusters / (1024 * 1024);
+        cout << "Drive " << s << ":\\ has:";
+        cout << "\n\tTotal space: " << totalB << " MB";
+        cout << "\n\tAvaliable space: " << freeB << " MB" << "\n\n";
+    }
+    else{
+        cout << "Could not get free space for ";
+        puts(s.c_str());
+    }
+}
+
+void createDir(){
+    string s;
+    cout << "\nEnter the path to the directory: ";
+    cin >> s;
+    if (CreateDirectoryA(s.c_str(), NULL))
+        cout << "Directory created\n";
+    else
+        cout << "Error create directory\n";
+}
+
+void removeDir(){
+    string s;
+    cout << "\nEnter the path to the directory: ";
+    cin >> s;
+    if (RemoveDirectoryA(s.c_str()))
+        cout << "Directory removed\n";
+    else
+        cout << "Error remove directory\n";
+}
+
+void createFile(){
+    string s;
+    cout << "\nEnter the path to the file: ";
+    cin >> s;
+    HANDLE FileHandle = CreateFileA(s.c_str(), GENERIC_READ | GENERIC_WRITE, FILE_SHARE_READ | FILE_SHARE_WRITE, NULL, CREATE_NEW, FILE_ATTRIBUTE_NORMAL, 0);
+    if (FileHandle == INVALID_HANDLE_VALUE)
+        cout << "\nError creation file.";
+    else
+        cout << "\nFile created.";
+    CloseHandle(FileHandle);
+}
+
+void copyFile(){
+    string from, to;
+    cout << "Enter the full path to the file: ";
+    cin >> from;
+    cout << "Enter the full path where to copy the file: ";
+    cin >> to;
+
+    if (CopyFileA(from.c_str(), to.c_str(), false))
+        cout << "The file has been copied!\n";
+    else
+        cout << "An error occurred, the file was not copied!\n";
+}
+
+void moveFile(){
+    string from, to;
+    cout << "Enter the full path to the file: ";
+    cin >> from;
+    cout << "Enter the full path where to move the file: ";
+    cin >> to;
+    if (MoveFileA(from.c_str(), to.c_str()))
+        cout << "File moved";
+    else
+        cout << "An error occurred, the file was not moved!" << GetLastError() << "\n";
+}
+
+void moveFileEx(){
+    string from, to;
+    cout << "Enter the full path to the file: ";
+    cin >> from;
+    cout << "Enter the full path where to move the file: ";
+    cin >> to;
+
+    if (!MoveFileExA(from.c_str(), to.c_str(), MOVEFILE_COPY_ALLOWED | MOVEFILE_REPLACE_EXISTING))
+        cout << "Error!";
+    else
+        cout << "File was moved!";
+}
+
+void getFileAttributes(){
+    string s;
+    cout << "\nEnter the file name: ";
+    cin >> s;
+
+    DWORD dwAttrs = GetFileAttributesA(s.c_str());
+    if (dwAttrs == INVALID_FILE_ATTRIBUTES){
+        cout << "Error!";
+        return;
+    }
+
+    cout << "\nAttributes: \n";
+    if (dwAttrs & FILE_ATTRIBUTE_ARCHIVE)
+        cout << "\n\tFILE_ATTRIBUTE_ARCHIVE\n";
+    if (dwAttrs & FILE_ATTRIBUTE_COMPRESSED)
+        cout << "\tFILE_ATTRIBUTE_COMPRESSED\n";
+    if (dwAttrs & FILE_ATTRIBUTE_DEVICE)
+        cout << "\tFILE_ATTRIBUTE_DEVICE\n";
+    if (dwAttrs & FILE_ATTRIBUTE_DIRECTORY)
+        cout << "\tFILE_ATTRIBUTE_DIRECTORY\n";
+    if (dwAttrs & FILE_ATTRIBUTE_ENCRYPTED)
+        cout << "\tFILE_ATTRIBUTE_ENCRYPTED\n";
+    if (dwAttrs & FILE_ATTRIBUTE_HIDDEN)
+        cout << "\tFILE_ATTRIBUTE_HIDDEN\n";
+    if (dwAttrs & FILE_ATTRIBUTE_NORMAL)
+        cout << "\tFILE_ATTRIBUTE_NORMAL\n";
+    if (dwAttrs & FILE_ATTRIBUTE_NOT_CONTENT_INDEXED)
+        cout << "\tFILE_ATTRIBUTE_NOT_CONTENT_INDEXED\n";
+    if (dwAttrs & FILE_ATTRIBUTE_OFFLINE)
+        cout << "\tFILE_ATTRIBUTE_OFFLINE\n";
+    if (dwAttrs & FILE_ATTRIBUTE_READONLY)
+        cout << "\tFILE_ATTRIBUTE_READONLY\n";
+    if (dwAttrs & FILE_ATTRIBUTE_REPARSE_POINT)
+        cout << "\tFILE_ATTRIBUTE_REPARSE_POINT\n";
+    if (dwAttrs & FILE_ATTRIBUTE_SPARSE_FILE)
+        cout << "\tFILE_ATTRIBUTE_SPARSE_FILE\n";
+    if (dwAttrs & FILE_ATTRIBUTE_SYSTEM)
+        cout << "\tFILE_ATTRIBUTE_SYSTEM\n";
+    if (dwAttrs & FILE_ATTRIBUTE_TEMPORARY)
+        cout << "\tFILE_ATTRIBUTE_TEMPORARY\n";
+}
+
+void setFileAttributes(){
+    string s;
+    cout << "\nEnter the file name: ";
+    cin >> s;
+
+    DWORD dwAttrs = FILE_ATTRIBUTE_READONLY;
+    if (!SetFileAttributesA(s.c_str(), dwAttrs))
+        cout << "Error!";
+    else
+        cout << "READONLY attribute was set.";
+}
+
+void getFileInfoByHandle(){
+    string s;
+    cout << "\nEnter the file name: ";
+    cin >> s;
+
+    BY_HANDLE_FILE_INFORMATION lpFileInformation;
+    HANDLE FileHandle = CreateFileA(s.c_str(), 0, FILE_SHARE_READ | FILE_SHARE_WRITE,NULL, OPEN_ALWAYS, FILE_ATTRIBUTE_NORMAL, 0);
+    if (!GetFileInformationByHandle(FileHandle, &lpFileInformation)){
+        cout << "Error!";
+        return;
+    }
+    else{
+        cout << "\nAttributes:\n";
+        if (lpFileInformation.dwFileAttributes & FILE_ATTRIBUTE_ARCHIVE)
+            cout << "FILE_ATTRIBUTE_ARCHIVE\n";
+        if (lpFileInformation.dwFileAttributes & FILE_ATTRIBUTE_COMPRESSED)
+            cout << "FILE_ATTRIBUTE_COMPRESSED\n";
+        if (lpFileInformation.dwFileAttributes & FILE_ATTRIBUTE_DIRECTORY)
+            cout << "FILE_ATTRIBUTE_DIRECTORY\n";
+        if (lpFileInformation.dwFileAttributes & FILE_ATTRIBUTE_ENCRYPTED)
+            cout << "FILE_ATTRIBUTE_ENCRYPTED\n";
+        if (lpFileInformation.dwFileAttributes & FILE_ATTRIBUTE_HIDDEN)
+            cout << "FILE_ATTRIBUTE_HIDDEN\n";
+        if (lpFileInformation.dwFileAttributes & FILE_ATTRIBUTE_NORMAL)
+            cout << "FILE_ATTRIBUTE_NORMAL\n";
+        if (lpFileInformation.dwFileAttributes & FILE_ATTRIBUTE_OFFLINE)
+            cout << "FILE_ATTRIBUTE_OFFLINE\n";
+        if (lpFileInformation.dwFileAttributes & FILE_ATTRIBUTE_READONLY)
+            cout << "FILE_ATTRIBUTE_READONLY\n";
+        if (lpFileInformation.dwFileAttributes & FILE_ATTRIBUTE_REPARSE_POINT)
+            cout << "FILE_ATTRIBUTE_REPARSE_POINT\n";
+        if (lpFileInformation.dwFileAttributes & FILE_ATTRIBUTE_SPARSE_FILE)
+            cout << "FILE_ATTRIBUTE_SPARSE_FILE\n";
+        if (lpFileInformation.dwFileAttributes & FILE_ATTRIBUTE_SYSTEM)
+            cout << "FILE_ATTRIBUTE_SYSTEM\n";
+        if (lpFileInformation.dwFileAttributes & FILE_ATTRIBUTE_TEMPORARY)
+            cout << "FILE_ATTRIBUTE_TEMPORARY\n";
+
+        SYSTEMTIME time, localTime, accessTime, localAccessTime, writeTime, localWriteTime;
+        if (!FileTimeToSystemTime(&lpFileInformation.ftCreationTime, &time)){
+            cout << "\nError creation time!";
+            return;
+        }
+        else{
+            SystemTimeToTzSpecificLocalTime(NULL, &time, &localTime);
+            cout << "\nCreation time: " << localTime.wDay << "." << localTime.wMonth << "." << localTime.wYear << ' ' << localTime.wHour << ":" << localTime.wMinute << ":" << localTime.wSecond;
+        }
+
+        if (!FileTimeToSystemTime(&lpFileInformation.ftLastAccessTime, &accessTime)){
+            cout << "\nError access time!";
+            return;
+        }
+        else{
+            SystemTimeToTzSpecificLocalTime(NULL, &accessTime, &localAccessTime);
+            cout << "\nLast access time: " << localAccessTime.wDay << "." << localAccessTime.wMonth << "." << localAccessTime.wYear << ' ' << localAccessTime.wHour << ":" << localAccessTime.wMinute << ":" << localAccessTime.wSecond;
+        }
+
+        if (!FileTimeToSystemTime(&lpFileInformation.ftLastWriteTime, &writeTime)){
+            cout << "\nError access time!";
+            return;
+        }
+        else{
+            SystemTimeToTzSpecificLocalTime(NULL, &writeTime, &localWriteTime);
+            cout << "\nLast write time: " << localWriteTime.wDay << "." << localWriteTime.wMonth << "." << localWriteTime.wYear << ' ' << localWriteTime.wHour << ":" << localWriteTime.wMinute << ":" << localWriteTime.wSecond;
+        }
+
+        cout << "\n\nVolume serial number: " << HIWORD(lpFileInformation.dwVolumeSerialNumber) << "-" << LOWORD(lpFileInformation.dwVolumeSerialNumber);
+
+        cout << "\nSize of file: " << ((lpFileInformation.nFileSizeHigh * (MAXDWORD + 1)) + lpFileInformation.nFileSizeLow) / 1024 << " kB";
+        cout << "\nNumber of link: " << lpFileInformation.nNumberOfLinks;
+        CloseHandle(FileHandle);
+    }
+}
+
+void getFileTime(char* s){
+    FILETIME creationTime, lastAccessTime, lastWriteTime;
+    SYSTEMTIME localCreationTime, localAccessTime, localWriteTime, UTClocalCreationTime, UTClocalAccessTime, UTClocalWriteTime;
+    HANDLE FileHandle = CreateFileA(s, GENERIC_READ | GENERIC_WRITE, FILE_SHARE_READ | FILE_SHARE_WRITE,NULL, OPEN_ALWAYS, FILE_ATTRIBUTE_NORMAL, 0);
+    if (!GetFileTime(FileHandle, &creationTime, &lastAccessTime, &lastWriteTime)){
+        cout << "Error!";
+        return;
+    }
+    else{
+        if (!FileTimeToSystemTime(&creationTime, &UTClocalCreationTime)){
+            cout << "\nError creation time!";
+            return;
+        }
+        else{
+            SystemTimeToTzSpecificLocalTime(NULL, &UTClocalCreationTime, &localCreationTime);
+            cout << "\nCreation time: " << localCreationTime.wDay << "." << localCreationTime.wMonth << "." << localCreationTime.wYear << ' ' << localCreationTime.wHour << ":" << localCreationTime.wMinute << ":" << localCreationTime.wSecond;
+        }
+
+        if (!FileTimeToSystemTime(&lastAccessTime, &UTClocalAccessTime)){
+            cout << "\nError last access time!";
+            return;
+        }
+        else{
+            SystemTimeToTzSpecificLocalTime(NULL, &UTClocalAccessTime, &localAccessTime);
+            cout << "\nLast access time: " << localAccessTime.wDay << "." << localAccessTime.wMonth << "." << localAccessTime.wYear << ' ' << localAccessTime.wHour << ":" << localAccessTime.wMinute << ":" << localAccessTime.wSecond;
+        }
+
+        if (!FileTimeToSystemTime(&lastWriteTime, &UTClocalWriteTime)){
+            cout << "\nError last write time!";
+            return;
+        }
+        else{
+            SystemTimeToTzSpecificLocalTime(NULL, &UTClocalWriteTime, &localWriteTime);
+            cout << "\nLast write time: " << localWriteTime.wDay << "." << localWriteTime.wMonth << "." << localWriteTime.wYear << ' ' << localWriteTime.wHour << ":" << localWriteTime.wMinute << ":" << localWriteTime.wSecond;
+        }
+    }
+    CloseHandle(FileHandle);
+}
+
+void setFileTime(char* s){
+    FILETIME fTime, fCreationTime;
+    SYSTEMTIME sTime, sCreationTime;
+    HANDLE FileHandle = CreateFileA(s, GENERIC_READ | GENERIC_WRITE, FILE_SHARE_READ | FILE_SHARE_WRITE,NULL, OPEN_ALWAYS, FILE_ATTRIBUTE_NORMAL, 0);
+    GetSystemTime(&sTime);
+    SystemTimeToFileTime(&sTime, &fTime);
+    if (!SetFileTime(FileHandle, &fTime, &fTime, &fTime)){
+        cout << "\nError!";
+        return;
+    }
+    else
+        cout << "\nTime was changed!";
+    CloseHandle(FileHandle);
+}
+
+void startFunc(int x, int y){
+    char s[MAX_PATH + 1];
+    if (x==1){
+        if (y==1) getLogicalDrives();
+        else if (y==2) getLogicalDriveStr();
+        else return;
+    }
+    else if (x==2){
+        if (y==1) getDriveType();
+        else if(y==2) getVolumeInfo();
+        else if(y==3) getDiskSize();
+        else return;
+    }
+    else if (x==3){
+        if (y==1) createDir();
+        else if(y==2) removeDir();
+        else return;
+    }
+    else if (x==4){
+        if (y==1) createFile();
+        else return;
+    }
+    else if (x==5){
+        if (y==1) copyFile();
+        else if(y==2) moveFile();
+        else if(y==3) moveFileEx();
+        else return;
+    }
+    else if (x==6){
+        if (y==1) getFileAttributes();
+        else if(y==2) setFileAttributes();
+        else if(y==3) getFileInfoByHandle();
+        else if (y==4){
+            cout << "\nEnter the file name: ";
+            cin >> s;
+            getFileTime(s);
+        }
+        else if (y==5){
+            cout << "\nEnter the file name: ";
+            cin >> s;
+            setFileTime(s);
+            getFileTime(s);
+        }
+        else return;
+    }
+}
+
+int main(){
+    int m = 0,n = 0;
+    do{
+        cout << "\n\nSelect an action:\n";
+        cout << "\n1. output a list of disks";
+        cout << "\n2. output information about the disk and the amount of free space";
+        cout << "\n3. creating and deleting directories";
+        cout << "\n4. creating files in directories";
+        cout << "\n5. copying and moving files";
+        cout << "\n6. analyzing and changing file attributes";
+        cout << "\nTo exit, press '0'\n";
+
+        m = cin.get();
+        if ((char)m != '0'){
+            switch (m){
+                case '1':
+                    cout << "\nYou have chosen output a list of disks\n";
+                    cout << "\n1. GetLogicalDrives()\n";
+                    cout << "\n2. GetLogicalDriveString()\n";
+                    cin >> n;
+                    startFunc(1, n);
+                break;
+
+                case '2':
+                    cout << "\nYou have chosen output information about the disk and the amount of free space\n";
+                    cout << "\n1. GetDriveTypeA()\n";
+                    cout << "\n2. GetVolumeInformation()\n";
+                    cout << "\n3. GetDiskFreeSpaceA();\n";
+                    cin >> n;
+                    startFunc(2, n);
+                break;
+
+                case '3':
+                    cout << "\nYou have chosen creating and deleting directories\n";
+                    cout << "\n1. CreateDirectoryA();";
+                    cout << "\n2. RemoveDirectoryA();\n";
+                    cin >> n;
+                    startFunc(3, n);
+                break;
+
+                case '4':
+                    cout << "\nYou have chosen creating files in directories\n";
+                    cout << "\nCreateFileA();";
+                    n = 1;
+                    startFunc(4, 1);
+                    break;
+
+                case '5':
+                    cout << "\nYou have chosen copying and moving files\n";
+                    cout << "\n1. CopyFileA();";
+                    cout << "\n2. MoveFileA();";
+                    cout << "\n3. MoveFileEx();\n";
+                    cin >> n;
+                    startFunc(5, n);
+                    break;
+
+                case '6':
+                    cout << "\nYou have chosen analyzing and changing file attributes\n";
+                    cout << "\n1. GetFileAttributes();";
+                    cout << "\n2. SetFileAttributes();";
+                    cout << "\n3. GetFileInformationByHandle();";
+                    cout << "\n4. GetFileTime();";
+                    cout << "\n5. SetFileTime();\n";
+                    cin >> n;
+                    startFunc(6, n);
+                    break;
+            }
+            cin.get();
+        }
+    } while ((char)m != '0');
+    return 0;
+}
