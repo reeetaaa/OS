@@ -3,7 +3,7 @@
 
 using namespace std;
 
-HANDLE CreateFileSt(){
+HANDLE CreateFileSt(){ //Cоздает проецируемый файл
     LPCWSTR  name;
     string select_file;
     cout << "Select a file:(c:\\\\file.txt and t.d. )" << endl;
@@ -12,7 +12,7 @@ HANDLE CreateFileSt(){
     HANDLE hfile = CreateFile((LPCSTR) name,  GENERIC_WRITE | GENERIC_READ, FILE_SHARE_READ | FILE_SHARE_WRITE | FILE_SHARE_DELETE, NULL, CREATE_ALWAYS, FILE_ATTRIBUTE_NORMAL, NULL);
     if (hfile != INVALID_HANDLE_VALUE){
         cout << "file created" << endl;
-        return CreateFileMapping(hfile, NULL, PAGE_READWRITE, 0, 128, TEXT("Local\\MyFileMappingObject"));
+        return CreateFileMapping(hfile, NULL, PAGE_READWRITE, 0, 128, TEXT("Local\\MyFileMappingObject")); //Cоздает проецируемый файл
     }
     else{
         cout << "error create file" << endl;
@@ -27,19 +27,19 @@ int main()
     LPVOID Map_1;
     Map = CreateFileSt();
     if( Map != NULL){
-        cout << "File Maping Access!" << endl;
-        Map_1 = MapViewOfFile(Map, FILE_MAP_WRITE, 0, 0, 0);
+        cout << "File Mapping Access!" << endl;
+        Map_1 = MapViewOfFile(Map, FILE_MAP_WRITE, 0, 0, 0); //Отображает представление файла в адресное пространство вызывающего процесса
         if(Map_1 == 0 ) cout << "File not projected!" << endl;
         else{
             cout << "The file is projected!" << endl;
-            CopyMemory(Map_1, TEXT("TEXT"), 5);
+            CopyMemory(Map_1, TEXT("TEXT"), 5); //Копирует блок памяти из одного места в другое
             system("pause");
-            UnmapViewOfFile(Map_1);
+            UnmapViewOfFile(Map_1); //Отменяет отображение представления файла из адресного пространства вызывающего процесса
             cout << "Data recorded!" << endl;
         }
     }
     else{
-        cout << "File Maping Error!" << endl;
+        cout << "File Mapping Error!" << endl;
         cout << GetLastError() << endl;
         return 0;
     }
