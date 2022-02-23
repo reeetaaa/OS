@@ -3,19 +3,18 @@
 
 using namespace std;
 
-int main()
-{
+int main(){
     HANDLE Map;
     LPVOID Map_1;
-    Map =  OpenFileMapping(FILE_MAP_READ, false, TEXT("Local\\MyFileMappingObject"));
+    Map =  OpenFileMapping(FILE_MAP_READ, false, TEXT("Local\\MyFileMappingObject")); //Открывает проецируемый файл
     if( Map != NULL){
         cout << "File Maping Access!" << endl;
-        Map_1 = MapViewOfFile(Map, FILE_MAP_READ, 0, 0, 0);
+        Map_1 = MapViewOfFile(Map, FILE_MAP_READ, 0, 0, 0); //Отображает представление файла в адресное пространство вызывающего процесса
         if(Map_1 == 0 ) cout << "File not projected!" << endl;
         else{
             cout << "The file is projected!" << endl;
             cout << (char*)(Map_1) << endl;
-            UnmapViewOfFile(Map_1);
+            UnmapViewOfFile(Map_1); //Отменяет отображение представления файла из адресного пространства вызывающего процесса
         }
     }
     else{
