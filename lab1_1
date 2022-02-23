@@ -3,7 +3,7 @@
 
 using namespace std;
 
-void getLogicalDrives(){
+void getLogicalDrives(){ //Показывает доступные дисковые накопители
     int n;
     char ch[4];
     DWORD dw = GetLogicalDrives();
@@ -33,7 +33,7 @@ void getLogicalDriveStr(){
     }
 }
 
-void getDriveType(){
+void getDriveType(){ //Определяет тип диска
     string s;
     cout << "Enter the disk name: ";
     cin >> s;
@@ -70,7 +70,7 @@ void getDriveType(){
     }
 }
 
-void getVolumeInfo(){
+void getVolumeInfo(){ //Извлекает информацию о файловой системе
     string s;
     CHAR nameBuf[MAX_PATH];
     CHAR fileSystemBuf[MAX_PATH];
@@ -93,20 +93,20 @@ void getVolumeInfo(){
         cout << "\tVolume Label: ";
         puts(nameBuf);
 
-        cout << "\tSerial Number: " << HIWORD(serialNumber) << "-" << LOWORD(serialNumber);
+        cout << "\tSerial Number: " << HIWORD(serialNumber) << "-" << LOWORD(serialNumber);  //Извлечение старших и малдших разрядов
 
         cout << "\n\tSystem Flags: \n";
-        if (systemFlags & FS_CASE_IS_PRESERVED)
+        if (systemFlags & FS_CASE_IS_PRESERVED) //Система делает различия между заглавными и прописными буквами в именах файлов при записи этих имен на диск
             cout << "\tFS_CASE_IS_PRESERVED\n";
-        if (systemFlags & FS_CASE_SENSITIVE)
+        if (systemFlags & FS_CASE_SENSITIVE) //Система делает различия между заглавными и прописными буквами
             cout << "\tFS_CASE_SENSITIVE\n";
-        if (systemFlags & FS_UNICODE_STORED_ON_DISK)
+        if (systemFlags & FS_UNICODE_STORED_ON_DISK) //Система может работать с кодировкой Unicode в именах файлов
             cout << "\tFS_UNICODE_STORED_ON_DISK \n";
-        if (systemFlags & FS_PERSISTENT_ACLS)
+        if (systemFlags & FS_PERSISTENT_ACLS) //Система способна работать со списком контроля доступа к файлам ACL
             cout << "\tFS_PERSISTENT_ACLS \n";
-        if (systemFlags & FS_FILE_COMPRESSION)
+        if (systemFlags & FS_FILE_COMPRESSION) //Файловая система способна сжимать(компрессовать) отдельные файлы
             cout << "\tFS_FILE_COMPRESSION\n";
-        if (systemFlags & FS_VOL_IS_COMPRESSED)
+        if (systemFlags & FS_VOL_IS_COMPRESSED) //Для тома используется автоматическая компрессия данных
             cout << "\tFS_VOL_IS_COMPRESSED\n";
 
         cout << "\tFile System: ";
@@ -115,7 +115,7 @@ void getVolumeInfo(){
     }
 }
 
-void getDiskSize(){
+void getDiskSize(){ //Извлекает информацию об указанном диске, включая объем свободного места на диске
     string s;
     cout << "Enter the disk name: ";
     cin >> s;
@@ -124,8 +124,8 @@ void getDiskSize(){
     BOOL bSuccess = GetDiskFreeSpaceA(s.c_str(), &sectorPerCluster, &bytesPerSector, &numOfFreeClusters, &totalNumOfClusters);
     if (bSuccess){
         long long freeB, totalB;
-        totalB = (long long)bytesPerSector*sectorPerCluster*totalNumOfClusters / (1024 * 1024);
-        freeB = (long long)bytesPerSector*sectorPerCluster*numOfFreeClusters / (1024 * 1024);
+        totalB = (long long)bytesPerSector*sectorPerCluster*totalNumOfClusters / (1024 * 1024); //всего места
+        freeB = (long long)bytesPerSector*sectorPerCluster*numOfFreeClusters / (1024 * 1024); //свободное место
         cout << "Drive " << s << ":\\ has:";
         cout << "\n\tTotal space: " << totalB << " MB";
         cout << "\n\tAvaliable space: " << freeB << " MB" << "\n\n";
@@ -136,7 +136,7 @@ void getDiskSize(){
     }
 }
 
-void createDir(){
+void createDir(){ //Создает новый каталог
     string s;
     cout << "\nEnter the path to the directory: ";
     cin >> s;
@@ -146,7 +146,7 @@ void createDir(){
         cout << "Error create directory\n";
 }
 
-void removeDir(){
+void removeDir(){ //Удаляет каталог
     string s;
     cout << "\nEnter the path to the directory: ";
     cin >> s;
@@ -156,7 +156,7 @@ void removeDir(){
         cout << "Error remove directory\n";
 }
 
-void createFile(){
+void createFile(){ //Создает файл
     string s;
     cout << "\nEnter the path to the file: ";
     cin >> s;
@@ -168,7 +168,7 @@ void createFile(){
     CloseHandle(FileHandle);
 }
 
-void copyFile(){
+void copyFile(){ //Копирование файла
     string from, to;
     cout << "Enter the full path to the file: ";
     cin >> from;
@@ -181,7 +181,7 @@ void copyFile(){
         cout << "An error occurred, the file was not copied!\n";
 }
 
-void moveFile(){
+void moveFile(){ //Переносит файл
     string from, to;
     cout << "Enter the full path to the file: ";
     cin >> from;
@@ -193,7 +193,7 @@ void moveFile(){
         cout << "An error occurred, the file was not moved!" << GetLastError() << "\n";
 }
 
-void moveFileEx(){
+void moveFileEx(){ //Копирует файл в новое место и удаляет оригинал
     string from, to;
     cout << "Enter the full path to the file: ";
     cin >> from;
@@ -206,7 +206,7 @@ void moveFileEx(){
         cout << "File was moved!";
 }
 
-void getFileAttributes(){
+void getFileAttributes(){ //Извлекает атрибуты файловой системы для файла
     string s;
     cout << "\nEnter the file name: ";
     cin >> s;
@@ -248,7 +248,7 @@ void getFileAttributes(){
         cout << "\tFILE_ATTRIBUTE_TEMPORARY\n";
 }
 
-void setFileAttributes(){
+void setFileAttributes(){ //Задает атрибуты для файла
     string s;
     cout << "\nEnter the file name: ";
     cin >> s;
@@ -260,7 +260,7 @@ void setFileAttributes(){
         cout << "READONLY attribute was set.";
 }
 
-void getFileInfoByHandle(){
+void getFileInfoByHandle(){ //Извлекает информацию о файле
     string s;
     cout << "\nEnter the file name: ";
     cin >> s;
@@ -299,12 +299,12 @@ void getFileInfoByHandle(){
             cout << "FILE_ATTRIBUTE_TEMPORARY\n";
 
         SYSTEMTIME time, localTime, accessTime, localAccessTime, writeTime, localWriteTime;
-        if (!FileTimeToSystemTime(&lpFileInformation.ftCreationTime, &time)){
+        if (!FileTimeToSystemTime(&lpFileInformation.ftCreationTime, &time)){ //переводит время файла в системное время
             cout << "\nError creation time!";
             return;
         }
         else{
-            SystemTimeToTzSpecificLocalTime(NULL, &time, &localTime);
+            SystemTimeToTzSpecificLocalTime(NULL, &time, &localTime); //переводит время в местное время
             cout << "\nCreation time: " << localTime.wDay << "." << localTime.wMonth << "." << localTime.wYear << ' ' << localTime.wHour << ":" << localTime.wMinute << ":" << localTime.wSecond;
         }
 
@@ -334,7 +334,7 @@ void getFileInfoByHandle(){
     }
 }
 
-void getFileTime(char* s){
+void getFileTime(char* s){ //Извлекает дату и время создания файла
     FILETIME creationTime, lastAccessTime, lastWriteTime;
     SYSTEMTIME localCreationTime, localAccessTime, localWriteTime, UTClocalCreationTime, UTClocalAccessTime, UTClocalWriteTime;
     HANDLE FileHandle = CreateFileA(s, GENERIC_READ | GENERIC_WRITE, FILE_SHARE_READ | FILE_SHARE_WRITE,NULL, OPEN_ALWAYS, FILE_ATTRIBUTE_NORMAL, 0);
@@ -373,7 +373,7 @@ void getFileTime(char* s){
     CloseHandle(FileHandle);
 }
 
-void setFileTime(char* s){
+void setFileTime(char* s){ //Задает дату и время создания файла
     FILETIME fTime, fCreationTime;
     SYSTEMTIME sTime, sCreationTime;
     HANDLE FileHandle = CreateFileA(s, GENERIC_READ | GENERIC_WRITE, FILE_SHARE_READ | FILE_SHARE_WRITE,NULL, OPEN_ALWAYS, FILE_ATTRIBUTE_NORMAL, 0);
@@ -456,7 +456,7 @@ int main(){
                     cout << "\n2. GetLogicalDriveString()\n";
                     cin >> n;
                     startFunc(1, n);
-                break;
+                    break;
 
                 case '2':
                     cout << "\nYou have chosen output information about the disk and the amount of free space\n";
@@ -465,7 +465,7 @@ int main(){
                     cout << "\n3. GetDiskFreeSpaceA();\n";
                     cin >> n;
                     startFunc(2, n);
-                break;
+                    break;
 
                 case '3':
                     cout << "\nYou have chosen creating and deleting directories\n";
@@ -473,7 +473,7 @@ int main(){
                     cout << "\n2. RemoveDirectoryA();\n";
                     cin >> n;
                     startFunc(3, n);
-                break;
+                    break;
 
                 case '4':
                     cout << "\nYou have chosen creating files in directories\n";
