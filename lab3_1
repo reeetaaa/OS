@@ -22,7 +22,7 @@ DWORD WINAPI Sync(LPVOID parametr){
     double x;
     DWORD SizeProgression;
     while(1){
-        NumberBlockObrUnit = InterlockedIncrement(&NumberBlockObrAll)-1;
+        NumberBlockObrUnit = InterlockedIncrement(&NumberBlockObrAll)-1; //Увеличивает значение указанной переменной
         ThreadBlock->counter = NumberBlockObrUnit*BlockSize;
         if(ThreadBlock->counter + BlockSize < N)
             SizeProgression = BlockSize + ThreadBlock->counter ;
@@ -60,7 +60,7 @@ int main()
         if(NULL == Threads[k]) cout << "Error Create!" << endl;
     }
 
-    WaitForMultipleObjects(ThreadCount, Threads, TRUE, INFINITE);
+    WaitForMultipleObjects(ThreadCount, Threads, TRUE, INFINITE); //Ожидает, пока один или все указанные объекты не перейдут в состояние сигнализации или не истечет интервал ожидания
 
     for(int k = 0; k<ThreadCount; k++){
         pi += ThreadInformation[k].pi;
