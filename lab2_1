@@ -3,7 +3,7 @@
 
 using namespace std;
 
-void SystemInformation(){
+void SystemInformation(){ //Получение информации о вычислительной системе
     SYSTEM_INFO Info;
     GetSystemInfo(&Info);
     if(Info.wProcessorArchitecture == 9){
@@ -27,7 +27,7 @@ void SystemInformation(){
     cout <<"Processor version depending on architecture: " << Info.wProcessorRevision <<endl;
 }
 
-void MemoryInformation(){
+void MemoryInformation(){ //Определение статуса виртуальной памяти
     MEMORYSTATUS state;
     state.dwLength = sizeof(state);
 
@@ -35,7 +35,7 @@ void MemoryInformation(){
 
     cout << "OZU: " << state.dwTotalPhys / (1024 * 1024) << " Mb" << endl;
     cout << "Sizeof  bytes: " << state.dwLength << endl;
-    cout << "Procent Memory use: " << state.dwMemoryLoad << endl;
+    cout << "Percent Memory use: " << state.dwMemoryLoad << endl;
     cout << "The amount of physical memory currently available, in bytes: " << state.dwAvailPhys << endl;
     cout << "Bytes of paging file: " << state.dwTotalPageFile << endl;
     cout << "Free bytes of paging file: " << state.dwAvailPageFile << endl;
@@ -43,31 +43,31 @@ void MemoryInformation(){
     cout << "Free user bytes: " << state.dwAvailVirtual;
 }
 
-void InformationMemorySpec(){
+void InformationMemorySpec(){ //Определение состояния конкретного участка памяти по заданному адресу
     LPVOID adress;
-    MEMORY_BASIC_INFORMATION lpBuffer;
+    MEMORY_BASIC_INFORMATION lpBuffer; //Содержит информацию о диапазоне страниц в виртуальном адресном пространстве процесса
     SIZE_T l;
     l = sizeof(lpBuffer);
 
-    cout << "Input adress memory: " << endl;
+    cout << "Input address memory: " << endl;
     cin >> adress;
 
-    l = VirtualQuery(adress, &lpBuffer, l);
+    l = VirtualQuery(adress, &lpBuffer, l); //Извлекает информацию о диапазоне страниц в виртуальном адресном пространстве вызывающего процесса
     if (l != 0){
-        cout << "Base Adress: " << lpBuffer.BaseAddress << endl; // Сообщает то же значение, что и параметр lpAddress, но округленное до ближайшего меньшего адреса, кратного размеру страницы
-        cout << "AllocationBase: " << lpBuffer.AllocationBase << endl; // Идентифицирует базовый адрес региона, включающего в себя адрес, указанный в параметре lpAddress
-        cout << "AllocationProtect: " << lpBuffer.AllocationProtect << endl; // Идентифицирует атрибут защиты, присвоенный региону при его резервировании
-        cout << "RegionSize: " << lpBuffer.RegionSize << endl; // Сообщает суммарный размер (в байтах) группы страниц, которые начинаются с базового адреса BaseAddress и имеют те же атрибуты защиты, состояние и тип, что и страница, расположенная по адресу, указанному в параметре lpAddress
+        cout << "Base Address: " << lpBuffer.BaseAddress << endl; //Сообщает то же значение, что и параметр lpAddress, но округленное до ближайшего меньшего адреса, кратного размеру страницы
+        cout << "AllocationBase: " << lpBuffer.AllocationBase << endl; //Идентифицирует базовый адрес региона, включающего в себя адрес, указанный в параметре lpAddress
+        cout << "AllocationProtect: " << lpBuffer.AllocationProtect << endl; //Идентифицирует атрибут защиты, присвоенный региону при его резервировании
+        cout << "RegionSize: " << lpBuffer.RegionSize << endl; //Сообщает суммарный размер (в байтах) группы страниц, которые начинаются с базового адреса BaseAddress и имеют те же атрибуты защиты, состояние и тип, что и страница, расположенная по адресу, указанному в параметре lpAddress
         cout << "Protect: " << lpBuffer.Protect << endl; //Идентифицирует атрибут защиты (PAGE_*) всех смежных страниц, которые имеют те же атрибуты защиты, состояние и тип, что и страница, располо-женная по адресу, указанному в параметре lpAddress
 
         if( lpBuffer.State == MEM_COMMIT){
-            cout << "Ficksation Page " << endl;
+            cout << "Commit Page " << endl;
         }
         else if( lpBuffer.State == MEM_FREE ){
             cout << "Free Page .... " << endl;
         }
         else if( lpBuffer.State == MEM_RESERVE ){
-            cout << "Rezerv Page" << endl;
+            cout << "Reserve Page" << endl;
         }
 
         cout << "Memory type: ";
@@ -93,11 +93,11 @@ void InformationMemorySpec(){
 
 }
 
-void reserveMemory() {
+void reserveMemory() { //Резервирование региона и передача ему физической памяти в автоматическом режиме и в режиме ввода адреса начала региона
     PVOID address;
     SIZE_T dwSize=10;
     PVOID p;
-    MEMORY_BASIC_INFORMATION lpBuffer;
+    MEMORY_BASIC_INFORMATION lpBuffer; //Содержит информацию о диапазоне страниц в виртуальном адресном пространстве процесса
     BOOL Free;
 
     cout << "Input Size: " << endl;
@@ -106,9 +106,9 @@ void reserveMemory() {
     cout << "Input address (0 - Auto), 0X000... : " << endl;
     cin >> address;
 
-    p = VirtualAlloc(address, dwSize, MEM_RESERVE, PAGE_EXECUTE_READWRITE);
+    p = VirtualAlloc(address, dwSize, MEM_RESERVE, PAGE_EXECUTE_READWRITE); //Резервирование области страниц в виртуальном адресном пространстве вызывающего процесса
     if( p != 0 ) {
-        cout << "Memory highlighted, adress: " << p << endl; // Память выделена
+        cout << "Memory highlighted, address: " << p << endl; //Память выделена
     }
     else{
         cout << "Memory no highlighted" << endl;
@@ -116,21 +116,21 @@ void reserveMemory() {
     }
 
     dwSize = sizeof(lpBuffer);
-    dwSize = VirtualQuery(p, &lpBuffer, dwSize);
+    dwSize = VirtualQuery(p, &lpBuffer, dwSize); //Извлекает информацию о диапазоне страниц в виртуальном адресном пространстве вызывающего процесса
 
     if( lpBuffer.State == MEM_COMMIT){
-        cout << "Ficksation Page " << endl;
+        cout << "Commit Page " << endl;
     }
     else if( lpBuffer.State == MEM_FREE ){
         cout << "Free Page .... " << endl;
     }
     else if( lpBuffer.State == MEM_RESERVE ){
-        cout << "Rezerv Page" << endl;
+        cout << "Reserve Page" << endl;
     }
 
     system("pause");
 
-    Free = VirtualFree(p, 0, MEM_RELEASE);
+    Free = VirtualFree(p, 0, MEM_RELEASE); //Освобождает область страниц в виртуальном адресном пространстве вызывающего процесса
     if (Free != 0 ){
         cout << "Memory Cleaned!" << endl;
     }
@@ -139,7 +139,7 @@ void reserveMemory() {
     }
 }
 
-void WriteDataCell() {
+void WriteDataCell() {  //Запись данных в ячейки памяти по заданным адресам
     PVOID address;
     SIZE_T dwSize=10;
     PVOID p;
@@ -147,18 +147,18 @@ void WriteDataCell() {
 
     cout << "Input address (0 - Auto), 0X000... :  "<< endl;
     cin >> address;
-    p = VirtualAlloc(address, dwSize, MEM_COMMIT, PAGE_EXECUTE_READWRITE);
+    p = VirtualAlloc(address, dwSize, MEM_COMMIT, PAGE_EXECUTE_READWRITE); //Резервирование области страниц в виртуальном адресном пространстве вызывающего процесса
     if( p == 0 ) {
         cout << " Memory no highlighted! " << endl;
         return;
     }
 
-    cout << "Adress: " << (int)(*((char *)p)) << endl;
+    cout << "Address: " << (int)(*((char *)p)) << endl;
     *((char *)p) = 'h';
-    cout << "Adress: " << (int)(*((char *)p)) << endl;
+    cout << "Address: " << (int)(*((char *)p)) << endl;
     system("pause");
 
-    Free = VirtualFree(p, 0, MEM_RELEASE);
+    Free = VirtualFree(p, 0, MEM_RELEASE); //Освобождает область страниц в виртуальном адресном пространстве вызывающего процесса
     if (Free != 0 ){
         cout << "Memory Cleaned!" << endl;
     }
@@ -168,7 +168,7 @@ void WriteDataCell() {
 
 }
 
-void Protect(){
+void Protect(){ //Установка защиты доступа для заданного региона памяти
     PVOID address;
     SIZE_T dwSize=10;
     PVOID p;
@@ -179,12 +179,12 @@ void Protect(){
 
     cout << "Input address (0 - Auto), 0X000... :  "<< endl;
     cin >> address;
-    p = VirtualAlloc(address, dwSize, MEM_COMMIT, PAGE_EXECUTE_READWRITE);
+    p = VirtualAlloc(address, dwSize, MEM_COMMIT, PAGE_EXECUTE_READWRITE); //Резервирование области страниц в виртуальном адресном пространстве вызывающего процесса
     if( p == 0 ) {
         cout << "Memory no highlighted!" << endl;
         return;
     }
-    cout << "Adress: " << p << endl;
+    cout << "Address: " << p << endl;
 
     cout << "Value: " << (int)(*((char *)p)) << endl;
 
@@ -200,7 +200,7 @@ void Protect(){
             break;
     }
 
-    if( VirtualProtect(p, dwSize, flag, &old) ) {
+    if( VirtualProtect(p, dwSize, flag, &old) ) { //Изменяет защиту в области зафиксированных страниц в виртуальном адресном пространстве вызывающего процесса
         cout << "Access Changed!" << endl;
     }
     else{
@@ -215,7 +215,8 @@ void Protect(){
         cout << "Value: " << (int)(*((char *)p)) << endl;
     }
 
-    Free = VirtualFree(p, 0, MEM_RELEASE);
+    Free = VirtualFree(p, 0, MEM_RELEASE); //Освобождает область страниц в виртуальном адресном пространстве вызывающего процесса
+
     if (Free != 0 ){
         cout << "Memory Cleaned!" << endl;
     }
