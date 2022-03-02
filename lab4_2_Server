@@ -1,0 +1,42 @@
+#include <iostream>
+#include "Windows.h"
+
+using namespace std;
+
+int main() {
+
+	const int sizeOfMessage = 128;
+	char message[sizeOfMessage];
+	OVERLAPPED overlapped;
+	memset(&overlapped, 0, sizeof(overlapped));
+	overlapped.hEvent = CreateEvent(NULL, true, 0, NULL);
+
+	DWORD dwWritten;
+
+	HANDLE hPipe = CreateNamedPipe(TEXT("\\\\.\\pipe\\Pipe"), PIPE_ACCESS_DUPLEX, PIPE_TYPE_BYTE | PIPE_READMODE_BYTE | PIPE_WAIT, 1, 1024 * 16, 1024 * 16, NMPWAIT_USE_DEFAULT_WAIT, NULL);
+	if (hPipe == INVALID_HANDLE_VALUE) cout << " [Error creating PIPE!]" << GetLastError() << endl;
+	else {
+        cout << endl;
+		cout << " [Pipe created!]" << endl;
+		cout << " [Waiting client to connect...]" << endl;
+		if (!ConnectNamedPipe(hPipe, NULL)) cout << "Error connecting client" << GetLastError() << endl;
+		else {
+			cout << " [Client connected successfully!]" << endl << endl;
+			cout << " [Input data]: " << endl;;
+			while (true) {
+
+				cin >> message;
+				WriteFile(hPipe, message, strlen(message) + 1, &dwWritten, &overlapped);
+
+				if (dwWritten)
+					WaitForSingleObject(overlapped.hEvent, INFINITE);
+
+			}
+
+			DisconnectNamedPipe(hPipe);
+			CloseHandle(hPipe);
+			CloseHandle(overlapped.hEvent);
+		}
+	}
+	return 0;
+}
