@@ -31,7 +31,7 @@ int main(int argc, char* argv[]) {
 	SYSTEM_INFO sysInfo;
 	GetSystemInfo(&sysInfo);
 
-	const int pages = 3 + 0 + 7 + 4 +0; //макс количество одновременно работающих потоков и семафоров
+	const int pages = 3 + 0 + 7 + 3 +2; //макс количество одновременно работающих потоков и семафоров
 	const int pageSize = sysInfo.dwPageSize; //размер информации, которая будет записана либо в массив, либо в файл
 	const int buffSize = pageSize * pages; //размер проекции файла
 
