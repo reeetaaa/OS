@@ -34,7 +34,7 @@ DWORD WINAPI ThreadFunc(LPVOID lpParameter)
 		SuspendThread(hThreads[(int)lpParameter]);
 	}
 
-    pi+=pi;
+    pi+=Pi;
 	return 0;
 }
 
