@@ -14,12 +14,14 @@ int main() {
 	DWORD dwWritten;
 
 	HANDLE hPipe = CreateNamedPipe(TEXT("\\\\.\\pipe\\Pipe"), PIPE_ACCESS_DUPLEX, PIPE_TYPE_BYTE | PIPE_READMODE_BYTE | PIPE_WAIT, 1, 1024 * 16, 1024 * 16, NMPWAIT_USE_DEFAULT_WAIT, NULL);
-	if (hPipe == INVALID_HANDLE_VALUE) cout << " [Error creating PIPE!]" << GetLastError() << endl;
+	if (hPipe == INVALID_HANDLE_VALUE) 
+		cout << " [Error creating PIPE!]" << GetLastError() << endl;
 	else {
         cout << endl;
 		cout << " [Pipe created!]" << endl;
 		cout << " [Waiting client to connect...]" << endl;
-		if (!ConnectNamedPipe(hPipe, NULL)) cout << "Error connecting client" << GetLastError() << endl;
+		if (!ConnectNamedPipe(hPipe, NULL)) 
+			cout << "Error connecting client" << GetLastError() << endl;
 		else {
 			cout << " [Client connected successfully!]" << endl << endl;
 			cout << " [Input data]: " << endl;;
@@ -30,9 +32,8 @@ int main() {
 
 				if (dwWritten)
 					WaitForSingleObject(overlapped.hEvent, INFINITE);
-
 			}
-
+			
 			DisconnectNamedPipe(hPipe);
 			CloseHandle(hPipe);
 			CloseHandle(overlapped.hEvent);
