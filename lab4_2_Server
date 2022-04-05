@@ -3,8 +3,7 @@
 
 using namespace std;
 
-int main() {
-
+int main(){
 	const int sizeOfMessage = 128;
 	char message[sizeOfMessage];
 	OVERLAPPED overlapped;
@@ -17,7 +16,7 @@ int main() {
 	if (hPipe == INVALID_HANDLE_VALUE) 
 		cout << " [Error creating PIPE!]" << GetLastError() << endl;
 	else {
-        cout << endl;
+        	cout << endl;
 		cout << " [Pipe created!]" << endl;
 		cout << " [Waiting client to connect...]" << endl;
 		if (!ConnectNamedPipe(hPipe, NULL)) 
@@ -26,14 +25,12 @@ int main() {
 			cout << " [Client connected successfully!]" << endl << endl;
 			cout << " [Input data]: " << endl;;
 			while (true) {
-
 				cin >> message;
 				WriteFile(hPipe, message, strlen(message) + 1, &dwWritten, &overlapped);
 
 				if (dwWritten)
 					WaitForSingleObject(overlapped.hEvent, INFINITE);
 			}
-			
 			DisconnectNamedPipe(hPipe);
 			CloseHandle(hPipe);
 			CloseHandle(overlapped.hEvent);
