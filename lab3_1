@@ -31,7 +31,7 @@ DWORD WINAPI ThreadFunc(LPVOID lpParameter)
 		numberOfCurThread = InterlockedExchangeAdd(&stepNum, 1); //атомарная операция
 		if (stepNum > maxSteps)
 			break;
-		SuspendThread(hThreads[(int)lpParameter]); //поток переходит в режим ожидания
+		SuspendThread(hThreads[(int)lpParameter]);
 	}
 
     pi+=pi;
@@ -57,8 +57,7 @@ int main()
 
 	while (stepNum < maxSteps)
 		for (int i = 0; i < THREADS_NUMBER; i++)
-			ResumeThread(hThreads[i]); //поток переходит в состояние готовности
-
+			ResumeThread(hThreads[i]); 
 	cout << "";
 
 	WaitForMultipleObjects(THREADS_NUMBER, hThreads, TRUE, INFINITE); //поток добровольно блокируется, уходя в состояние ожидания
