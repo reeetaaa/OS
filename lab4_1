@@ -10,7 +10,8 @@ using namespace std;
 LPVOID initBuffer(int size, bool read) { //создание файла и его проекции
 	HANDLE file = CreateFile(L"C:\\buffer.txt", GENERIC_ALL, 0, NULL, read ? OPEN_EXISTING : CREATE_ALWAYS, FILE_ATTRIBUTE_NORMAL, NULL);
 	HANDLE buffer = OpenFileMapping(read ? GENERIC_READ : GENERIC_WRITE, NULL, L"buffer");
-	if (buffer == NULL) buffer = CreateFileMapping(file, NULL, PAGE_READWRITE, 0, size, L"buffer");
+	if (buffer == NULL) 
+		buffer = CreateFileMapping(file, NULL, PAGE_READWRITE, 0, size, L"buffer");
 	LPVOID buffAddress = MapViewOfFile(buffer, read ? FILE_MAP_READ : FILE_MAP_WRITE, 0, 0, size); //адрес проекции
 	VirtualLock(buffAddress, size);
 	return buffAddress;
@@ -20,7 +21,8 @@ void initSemaphores(HANDLE* arr, int numOfPages, int state, wchar_t name[]) { //
 	for (int i = 0; i < numOfPages; i++) {
 		name[2] = i + '0';
 		arr[i] = OpenSemaphore(SYNCHRONIZE | SEMAPHORE_MODIFY_STATE, false, name);
-		if (arr[i] == NULL) arr[i] = CreateSemaphore(NULL, state, 1, name);
+		if (arr[i] == NULL) 
+			arr[i] = CreateSemaphore(NULL, state, 1, name);
 	}
 }
 
@@ -39,7 +41,8 @@ int main(int argc, char* argv[]) {
 	cout << (reader ? "Reader App" : "Writer App") << endl; //определяется режим работы программы
 
 	char* message = new char[pageSize](); //массив куда будет записываться информация, либо считываться
-	if (!reader) memset(message, 97 + rand() % 26, pageSize); //рандомные символы
+	if (!reader) 
+		memset(message, 97 + rand() % 26, pageSize); //рандомные символы
 
 	fstream journal;
 	journal.open(reader ? "C:\\ReaderJournal.txt" : "C:\\WriterJournal.txt", fstream::app); //журнал состояний
@@ -66,8 +69,10 @@ int main(int argc, char* argv[]) {
 		journal << std::setw(10) << GetCurrentProcessId() << " | " << std::setw(10) << timeGetTime() << " | " << std::setw(12) << (reader ? "Read begin" : "Write begin") << " | " << std::setw(10) << curPage << endl;
 		cout << std::setw(10) << (int)buffAddress + curPage * pageSize << " | " << std::setw(5) << curPage << endl; //записывается в журнал
 
-		if (reader) memcpy(message, (void*)((int)buffAddress + curPage * pageSize), pageSize);
-		else memcpy((void*)((int)buffAddress + curPage * pageSize), message, pageSize); //записать в память для адреса проекции + смещение 
+		if (reader) 
+			memcpy(message, (void*)((int)buffAddress + curPage * pageSize), pageSize);
+		else 
+			memcpy((void*)((int)buffAddress + curPage * pageSize), message, pageSize); //записать в память для адреса проекции + смещение 
 
 		Sleep(500 + rand() % 1000); //ждет пока произойдет чтение или запись в файл
 		journal << std::setw(10) << GetCurrentProcessId() << " | " << std::setw(10) << timeGetTime() << " | " << std::setw(12) << (reader ? "Read end" : "Write end") << " | " << std::setw(10) << curPage << endl;
