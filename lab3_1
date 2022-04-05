@@ -60,7 +60,7 @@ int main()
 			ResumeThread(hThreads[i]); 
 	cout << "";
 
-	WaitForMultipleObjects(THREADS_NUMBER, hThreads, TRUE, INFINITE); //поток добровольно блокируется, уходя в состояние ожидания
+	WaitForMultipleObjects(THREADS_NUMBER, hThreads, TRUE, INFINITE);
 
 	double end = GetTickCount();
 	
