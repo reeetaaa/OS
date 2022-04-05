@@ -16,9 +16,12 @@ int main() {
 	memset(&overlapped, 0, sizeof(overlapped));
 
 	HANDLE hPipe = CreateFile(TEXT("\\\\.\\pipe\\Pipe"), GENERIC_READ | GENERIC_WRITE, 0, NULL, OPEN_EXISTING, 0, NULL);
-	if (hPipe == INVALID_HANDLE_VALUE) cout << " [Connection error to the pipe due to an error]:" << GetLastError() << endl;
-	else cout << " [Connected to pipe succesfully!]" << endl;
-    if (hPipe != INVALID_HANDLE_VALUE)  cout <<" [Data received from the server]:"<< endl;
+	if (Pipe == INVALID_HANDLE_VALUE) 
+		cout << " [Connection error to the pipe due to an error]:" << GetLastError() << endl;
+	else 
+		cout << " [Connected to pipe succesfully!]" << endl;
+    	if (hPipe != INVALID_HANDLE_VALUE)  
+		cout <<" [Data received from the server]:"<< endl;
 	bool done = true;
 	while (done && hPipe != INVALID_HANDLE_VALUE) {
 		done = ReadFileEx(hPipe, message, messageSize, &overlapped, ReadCompletionRoutine);
