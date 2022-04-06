@@ -64,7 +64,7 @@ int main(int argc, char* argv[]) {
 	journal << endl << std::setw(10) << "PROCESS ID" << " | " << std::setw(10) << "TIME" << " | " << std::setw(12) << "STATE" << " | " << std::setw(10) << "PAGE NUMBER" << endl << "-----------+------------+--------------+------------" << endl;
 	while (true) {
 		journal << std::setw(10) << GetCurrentProcessId() << " | " << std::setw(10) << timeGetTime() << " | " << std::setw(12) << "Wait" << " | " << endl;
-		int curPage = WaitForMultipleObjects(pages, wait, false, INFINITE); //поток помещается в семафор 
+		int curPage = WaitForMultipleObjects(pages, wait, false, INFINITE); 
 
 		journal << std::setw(10) << GetCurrentProcessId() << " | " << std::setw(10) << timeGetTime() << " | " << std::setw(12) << (reader ? "Read begin" : "Write begin") << " | " << std::setw(10) << curPage << endl;
 		cout << std::setw(10) << (int)buffAddress + curPage * pageSize << " | " << std::setw(5) << curPage << endl; 
@@ -72,7 +72,7 @@ int main(int argc, char* argv[]) {
 		if (reader) 
 			memcpy(message, (void*)((int)buffAddress + curPage * pageSize), pageSize);
 		else 
-			memcpy((void*)((int)buffAddress + curPage * pageSize), message, pageSize); //запись рандомных символов в память
+			memcpy((void*)((int)buffAddress + curPage * pageSize), message, pageSize); 
 
 		Sleep(500 + rand() % 1000); //ждет пока произойдет чтение или запись в файл
 		journal << std::setw(10) << GetCurrentProcessId() << " | " << std::setw(10) << timeGetTime() << " | " << std::setw(12) << (reader ? "Read end" : "Write end") << " | " << std::setw(10) << curPage << endl;
